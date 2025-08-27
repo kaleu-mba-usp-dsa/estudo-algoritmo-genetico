@@ -32,6 +32,7 @@ def exibe_dados(itens):
     if len(itens) != 9:
         raise ValueError('Você deve sempre exibir um array de 9 ítens')
 
+    print(itens)
     total_peso = 0
     total_valor = 0
     for index, value in enumerate(dados['itens']):

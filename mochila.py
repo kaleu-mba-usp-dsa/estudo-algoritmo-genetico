@@ -4,11 +4,12 @@ from functions import pega_total_peso, pega_total_valor, exibe_dados, sorteia_do
 
 print('PROBLEMA MOCHILA')
 
-# ### GERAR POPULACAO ###
-# Gerar um grupo de X indivíduos para compor a população inicial
+# ### GERAR POPULACAO INICIAL ###
+# Gera um grupo de X indivíduos para compor a população inicial
 # Avaliar o peso de todos para definir se passam na restrição e
-# Gerar indivíduos o bastante até completar a geração.
+# Gera indivíduos o bastante até completar a geração.
 
+param_max_geracoes = 10
 param_numero_individuos = 10
 param_percentual_chance_mutacao = 0.1
 populacao = []
@@ -20,8 +21,7 @@ while len(populacao) < param_numero_individuos:
 
 print(f'Gerou população de {len(populacao)} indivíduos')
 
-# ### AVALIA MELHOR SOLUÇÃO ###
-geracoes = []
+# ### MÉTODO QUE AVALIA MELHOR SOLUÇÃO ###
 fitness = 0
 best_solution = None
 
@@ -41,44 +41,59 @@ def avalia_fitness(_populacao):
     print(f'Média Valores: {sum(_valores) / len(_valores):2f}')
     print('')
 
+# Avalia população inicial para referência
 avalia_fitness(populacao)
 
-max_geracoes = 10
-for i in range(max_geracoes):
+# ### EXECUTA GERAÇÕES ###
+for i in range(param_max_geracoes):
     # ### SELECIONA PAIS PARA UMA NOVA RODADA ###
     ### Vou usar uma solução simples, pegando os 60% melhores
     ### E realizando cruzamentos aleatórios entre eles para gerar os novos 8
     ### Manterei os dois melhores da geração anterior como um processo de elitismo
 
+    # Ordenar a população simplifica o elitismo e a seleção dos "melhores"
     populacao_ordenada = sorted(populacao, key=lambda item: pega_total_valor(item), reverse=True)
-    nova_populacao = []
-    # nova_populacao.append(populacao_ordenada[0].copy())
-    # nova_populacao.append(populacao_ordenada[1].copy())
 
+    # ### ELITISMO ###
+    # Mantém o primeiro com melhor desempenho
+    # Para não correr risco de degradar o resultado justamente no final
+    # das gerações. O uso de dois ou 3 (20% ou 30%) fez com que
+    # em várias situações o resultado estacionasse em 38 ou 39 pontos
+    # Sem chegar ao ótimo conhecido de 41
+    nova_populacao = [populacao_ordenada[0].copy()]
+
+    # A variável repetições é uma saída de segurança
+    # caso ao mexer nos parâmteros eu causasse um loop infinito aqui
     repeticoes = 0
-    while len(nova_populacao) < 10 and repeticoes < 100:
+    while len(nova_populacao) < param_numero_individuos and repeticoes < 100:
         repeticoes += 1
 
+        # Sorteia pai e mãe, garantindo dois indivíduos diferentes
         a, b = sorteia_dois_diferentes(0, 5)
         pai = populacao_ordenada[a]
         mae = populacao_ordenada[b]
 
-        # pega primeira parte do pai e segunda parte da mae
+        # pega primeira parte do pai, sorteia o valor do meio e a última parte da mae
         filho = pai[:4] + [random.choice([pai[4], mae[4]])] + mae[5:]
 
-        # Chance de mutação de 10%
+        # ### MUTAÇÃO ###
         for index, gene in enumerate(filho):
+            # Cada gene tem X% de chance de sofrer uma mudança
             if random.random() < param_percentual_chance_mutacao:
                 filho[index] = 1 - gene
 
+        # Avalia restrição do sistema
         peso = pega_total_peso(filho)
-
         if peso <= 5000:
             nova_populacao.append(filho)
 
+    # Mostra resultado da geração
     print(f'Geração {i + 1}')
     print(f'Gerou nova população de {len(nova_populacao)} indivíduos')
     avalia_fitness(nova_populacao)
+
+    # bora recomeçar
     populacao = nova_populacao
 
+# Exibe melhor solução encontrada
 exibe_dados(best_solution)
