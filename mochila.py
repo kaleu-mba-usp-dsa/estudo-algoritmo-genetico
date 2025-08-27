@@ -9,13 +9,17 @@ print('PROBLEMA MOCHILA')
 # Avaliar o peso de todos para definir se passam na restrição e
 # Gera indivíduos o bastante até completar a geração.
 
-param_max_geracoes = 10
+param_max_geracoes = 15
 param_numero_individuos = 10
 param_percentual_chance_mutacao = 0.1
 populacao = []
 
 while len(populacao) < param_numero_individuos:
-    cromossomo = [random.randint(0,1) for _ in range(9)]
+    # Vamos dificultar para o algoritmo aumentando para 80% a chance
+    # dele iniciar um gene como zero, que é o ítem fora da mochila
+    # Fiz isso porque os valores iniciais estavam muito altos e rapidamente
+    # o algoritmo chega na solução
+    cromossomo = [random.choice([0, 0, 0, 0, 0, 0, 0, 0, 1, 1]) for _ in range(9)]
     if pega_total_peso(cromossomo) <= 5000 :
         populacao.append(cromossomo)
 
