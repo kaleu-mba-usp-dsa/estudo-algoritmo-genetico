@@ -1,3 +1,5 @@
+import random
+
 dados = {
     'itens': [
         'Barra de Cereal',
@@ -47,3 +49,11 @@ def exibe_dados(itens):
     print('#--------------------------#')
     print(f'Total Valor: {total_valor}')
     print(f'Total Peso: {total_peso}g')
+
+def sorteia_dois_diferentes(start, end):
+    a = random.randint(start, end)
+    b = None
+    while b is None or b == a:
+        b = random.randint(start, end)
+
+    return a, b
